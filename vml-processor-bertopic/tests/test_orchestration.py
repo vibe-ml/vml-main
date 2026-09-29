@@ -265,7 +265,7 @@ def _table_count(engine: Engine, table: object) -> int:
         )
 
 
-def test_discovery_job_materializes_four_assets_in_order(
+def test_discovery_job_materializes_assets_in_order(
     orch_env: tuple[Settings, Engine, QdrantClient],
 ) -> None:
     settings, engine, qdrant = orch_env
@@ -377,7 +377,8 @@ def test_discovery_job_materializes_four_assets_in_order(
     headline_points = qdrant.scroll(
         collection_name=headline_collection, limit=10, with_payload=True
     )[0]
-    assert len(headline_points) >= 1
+    # FakeLabelingClient uses one fixed headline, so both topics share one point id.
+    assert len(headline_points) == 1
     deleted_point_id = headline_points[0].id
 
     ports_reject = _ports(
@@ -387,7 +388,22 @@ def test_discovery_job_materializes_four_assets_in_order(
         embedding_client=RejectEmbeddingClient(),
         labeling_client=FakeLabelingClient(),
     )
-    assert dg.materialize(discovery_assets, resources={"ports": ports_reject}).success
+    with capture_logs() as adopt_logs:
+        adopt_result = dg.materialize(
+            discovery_assets, resources={"ports": ports_reject}
+        )
+    assert adopt_result.success
+    adopt_meta = _assert_metadata_matches_boundary(
+        adopt_result,
+        adopt_logs,
+        asset="topic_emergence",
+        stage="emergence",
+        keys=EMERGENCE_METADATA,
+    )
+    assert adopt_meta["headlines_processed"] == 0
+    assert adopt_meta["headlines_cached"] == 2
+    assert adopt_meta["headlines_saved"] == 0
+    assert adopt_meta["headlines_failed"] == 0
     with engine.connect() as connection:
         after_adopt = (
             connection.execute(select(EmergenceObservation.__table__)).mappings().all()
@@ -400,11 +416,9 @@ def test_discovery_job_materializes_four_assets_in_order(
     qdrant.delete(
         collection_name=headline_collection,
         points_selector=[deleted_point_id],
+        wait=True,
     )
-    assert (
-        len(qdrant.scroll(collection_name=headline_collection, limit=10)[0])
-        == len(headline_points) - 1
-    )
+    assert qdrant.scroll(collection_name=headline_collection, limit=10)[0] == []
 
     ports_fill = _ports(
         settings=settings,
@@ -424,9 +438,10 @@ def test_discovery_job_materializes_four_assets_in_order(
         keys=EMERGENCE_METADATA,
     )
     assert fill_meta["observation_count"] == 2
-    assert fill_meta["headlines_processed"] == 1
-    assert fill_meta["headlines_cached"] == 1
-    assert fill_meta["headlines_saved"] == 1
+    # Both topics share the deleted point id, so both planned rows miss and re-embed.
+    assert fill_meta["headlines_processed"] == 2
+    assert fill_meta["headlines_cached"] == 0
+    assert fill_meta["headlines_saved"] == 2
     assert fill_meta["headlines_failed"] == 0
     restored = qdrant.retrieve(
         collection_name=headline_collection, ids=[deleted_point_id]

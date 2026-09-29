@@ -17,6 +17,8 @@ class EmergenceResult:
         headlines_cached: Succeeded headlines already stored and not re-sent.
         headlines_saved: Headline points upserted this call.
         headlines_failed: Headlines skipped after embedding failure this call.
+        coverage_status: Shared observation coverage, joined when a run mixes
+            statuses, or ``none`` when the run has no observations.
     """
 
     topic_run_id: uuid.UUID
@@ -25,6 +27,7 @@ class EmergenceResult:
     headlines_cached: int = 0
     headlines_saved: int = 0
     headlines_failed: int = 0
+    coverage_status: str = "none"
 
 
 class EmergenceError(RuntimeError):

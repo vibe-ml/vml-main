@@ -239,7 +239,28 @@ def observe_emergence(
         headlines_cached=headlines_cached,
         headlines_saved=headlines_saved,
         headlines_failed=headlines_failed,
+        coverage_status=_coverage_status(engine, topic_run_id),
     )
+
+
+def _coverage_status(engine: Engine, topic_run_id: uuid.UUID) -> str:
+    """Return the run's coverage status, or ``none`` when it has no observations.
+
+    A run whose topics disagree joins the distinct statuses in sorted order.
+    """
+    with engine.connect() as connection:
+        statuses = (
+            connection.execute(
+                select(EmergenceObservation.__table__.c.coverage_status).where(
+                    EmergenceObservation.__table__.c.topic_run_id == topic_run_id
+                )
+            )
+            .scalars()
+            .all()
+        )
+    if not statuses:
+        return "none"
+    return ",".join(sorted(set(statuses)))
 
 
 def _embed_succeeded_headlines(

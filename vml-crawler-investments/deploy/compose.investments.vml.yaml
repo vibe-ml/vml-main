@@ -1,0 +1,56 @@
+# Investments crawler overlay for vml; install as /opt/dagster/projects/vml-crawler-investments/compose.yaml.
+# Paths resolve relative to /opt/dagster/compose.yaml.
+services:
+  code_investments:
+    restart: unless-stopped
+    image: ${INVESTMENTS_IMAGE:?Investments image is required}
+    build:
+      context: ./projects/vml-crawler-investments
+    environment:
+      # Schedule evaluation reconstructs the Dagster instance in this process.
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD:?Database password is required}
+      DAGSTER_CURRENT_IMAGE: ${INVESTMENTS_IMAGE:?Investments image is required}
+      DAGSTER_CONTAINER_CONTEXT: >-
+        {"docker": {
+          "env_vars": ["INVESTMENTS_DATABASE_URL", "INVESTMENTS_SCHEMA_INVESTMENTS",
+            "INVESTMENTS_SOCIAL_SCHEMA", "INVESTMENTS_COLLECT_FROM", "INVESTMENTS_LANGUAGES",
+            "INVESTMENTS_MIN_KEYWORD_WORDS", "INVESTMENTS_REQUEST_INTERVAL",
+            "INVESTMENTS_REQUEST_BUDGET", "INVESTMENTS_WINDOW_CAP"],
+          "networks": ["pg_default"],
+          "container_kwargs": {"mem_limit": "1g", "nano_cpus": 1000000000}
+        }}
+    env_file:
+      - ./configs/vml-crawler-investments.env
+      - ./secrets/vml-crawler-investments.env
+    networks:
+      - default
+      - investments_database
+    healthcheck:
+      test: [CMD, dagster, api, grpc-health-check, -p, "4000"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  daemon:
+    env_file:
+      - ./configs/vml-crawler-investments.env
+      - ./secrets/vml-crawler-investments.env
+    depends_on:
+      code_investments:
+        condition: service_healthy
+
+  webserver:
+    env_file:
+      - ./configs/vml-crawler-investments.env
+      - ./secrets/vml-crawler-investments.env
+
+networks:
+  investments_database:
+    external: true
+    name: pg_default

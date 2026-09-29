@@ -1,7 +1,6 @@
 """Five Dagster assets and one job wiring the processor stages."""
 
 import time
-import uuid
 from collections.abc import Mapping
 from typing import Any
 
@@ -21,7 +20,6 @@ from src.embeddings.vectors import (
 from src.emergence import observe_emergence
 from src.labels import label_topics
 from src.labels.models import LabelRunResult
-from src.models.emergence import EmergenceObservation
 from src.models.labels import TopicLabel, WorkSummary
 from src.orchestration.adopt import find_existing_labels, find_succeeded_topic_run
 from src.orchestration.ports import PipelinePorts
@@ -86,23 +84,6 @@ def _label_metadata(result: LabelRunResult, engine: Engine) -> dict[str, int]:
         "headlines_inserted": result.headlines_inserted,
         "headlines_total": _table_count(engine, TopicLabel.__table__),
     }
-
-
-def _coverage_status_for_run(engine: Engine, topic_run_id: uuid.UUID) -> str:
-    """Return the shared coverage status for a run, or ``none`` when empty."""
-    with engine.connect() as connection:
-        statuses = (
-            connection.execute(
-                select(EmergenceObservation.__table__.c.coverage_status).where(
-                    EmergenceObservation.__table__.c.topic_run_id == topic_run_id
-                )
-            )
-            .scalars()
-            .all()
-        )
-    if not statuses:
-        return "none"
-    return ",".join(sorted(set(statuses)))
 
 
 @dg.asset(
@@ -368,7 +349,6 @@ def topic_emergence(
         qdrant=ports.qdrant,
     )
     elapsed = round(time.monotonic() - started, 3)
-    coverage_status = _coverage_status_for_run(ports.engine, run.run_id)
     counts = {
         "observation_count": result.observation_count,
         "headlines_processed": result.headlines_processed,
@@ -381,7 +361,7 @@ def topic_emergence(
         stage="emergence",
         run_id=run_id,
         topic_run_id=str(run.run_id),
-        coverage_status=coverage_status,
+        coverage_status=result.coverage_status,
         elapsed_seconds=elapsed,
         **counts,
     )
@@ -389,7 +369,7 @@ def topic_emergence(
         value={
             "topic_run_id": str(run.run_id),
             "observation_count": result.observation_count,
-            "coverage_status": coverage_status,
+            "coverage_status": result.coverage_status,
         },
         metadata=_int_metadata(counts),
     )
@@ -410,7 +390,8 @@ discovery_topics_job = dg.define_asset_job(
         "Select corpus, embed into Qdrant, fit discovery topics, label them, "
         "score emergence, and embed headlines. "
         "Topic and label assets can rematerialize against durable corpus vectors "
-        "without calling embedding hosts for cache hits."
+        "without calling embedding hosts for cache hits. "
+        "Emergence adopts existing observation rows and embeds only headline cache misses."
     ),
     tags={"dagster/concurrency_key": "topic_fit"},
 )

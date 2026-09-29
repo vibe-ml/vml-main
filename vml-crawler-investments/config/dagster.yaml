@@ -1,0 +1,7 @@
+# Use a dedicated PostgreSQL database for Dagster's own run/event tables.
+storage:
+  postgres:
+    postgres_url:
+      env: DAGSTER_POSTGRES_URL
+telemetry:
+  enabled: false
