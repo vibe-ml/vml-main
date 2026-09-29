@@ -1,0 +1,113 @@
+name: dagster
+
+x-dagster: &dagster
+  restart: unless-stopped
+  environment:
+    DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD:?Database password is required}
+  volumes:
+    - dagster_storage:/opt/dagster/storage
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "3"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dagster
+      POSTGRES_DB: dagster
+      POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD:?Database password is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U dagster -d dagster"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  code:
+    <<: *dagster
+    build:
+      context: .
+      dockerfile: Dockerfile.pipeline
+    image: ${PIPELINE_IMAGE:?Pipeline image is required}
+    environment:
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD:?Database password is required}
+      DAGSTER_CURRENT_IMAGE: ${PIPELINE_IMAGE:?Pipeline image is required}
+    command: [dagster, api, grpc, -h, 0.0.0.0, -p, "4000", -f, /opt/dagster/code/definitions.py]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, dagster, api, grpc-health-check, -p, "4000"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  webserver:
+    <<: *dagster
+    build: .
+    image: vml-dagster-infra:1.13.24
+    group_add:
+      - "${DOCKER_GID:?Docker socket group is required}"
+    volumes:
+      - dagster_storage:/opt/dagster/storage
+      - ./dagster.yaml:/opt/dagster/home/dagster.yaml:ro
+      - ./workspace.yaml:/opt/dagster/home/workspace.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: [dagster-webserver, -h, 0.0.0.0, -p, "3000", -w, /opt/dagster/home/workspace.yaml]
+    ports:
+      - "${HOST_INT_IP:?Private bind address is required}:3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      code:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/server_info', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  daemon:
+    <<: *dagster
+    build: .
+    image: vml-dagster-infra:1.13.24
+    group_add:
+      - "${DOCKER_GID:?Docker socket group is required}"
+    volumes:
+      - dagster_storage:/opt/dagster/storage
+      - ./dagster.yaml:/opt/dagster/home/dagster.yaml:ro
+      - ./workspace.yaml:/opt/dagster/home/workspace.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: [dagster-daemon, run, -w, /opt/dagster/home/workspace.yaml]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      code:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, dagster-daemon, liveness-check]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  postgres_data:
+  dagster_storage:
+    name: dagster_dagster_storage
+
+networks:
+  default:
+    name: dagster_default

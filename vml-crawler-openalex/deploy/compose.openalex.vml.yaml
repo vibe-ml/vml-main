@@ -1,0 +1,59 @@
+# OpenAlex deployment on vml; credentials stay on the deployment host.
+services:
+  code_openalex:
+    restart: unless-stopped
+    image: ${OPENALEX_IMAGE:?OpenAlex image is required}
+    build:
+      context: ./projects/vml-crawler-openalex
+    environment:
+      # Schedule evaluation reconstructs the Dagster instance in this process.
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD:?Database password is required}
+      DAGSTER_CURRENT_IMAGE: ${OPENALEX_IMAGE:?OpenAlex image is required}
+      DAGSTER_CONTAINER_CONTEXT: >-
+        {"docker": {
+          "env_vars": ["OPENALEX_DATABASE_URL", "OPENALEX_API_KEY",
+            "OPENALEX_STORAGE_ROOT", "OPENALEX_API_REQUEST_LIMIT",
+            "OPENALEX_PUBLICATION_FROM", "OPENALEX_EXCLUDE_DOMAIN_IDS"],
+          "networks": ["pg_default"],
+          "container_kwargs": {
+            "volumes": ["dagster_dagster_storage:/opt/dagster/storage", "/data/demo:/data"],
+            "mem_limit": "2g", "nano_cpus": 2000000000
+          }
+        }}
+    env_file:
+      - ./configs/vml-crawler-openalex.env
+      - ./secrets/vml-crawler-openalex.env
+    volumes:
+      - /data/demo:/data
+    networks:
+      - default
+      - openalex_database
+    healthcheck:
+      test: [CMD, dagster, api, grpc-health-check, -p, "4000"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  daemon:
+    env_file:
+      - ./configs/vml-crawler-openalex.env
+      - ./secrets/vml-crawler-openalex.env
+    depends_on:
+      code_openalex:
+        condition: service_healthy
+
+  webserver:
+    env_file:
+      - ./configs/vml-crawler-openalex.env
+      - ./secrets/vml-crawler-openalex.env
+
+networks:
+  openalex_database:
+    external: true
+    name: pg_default

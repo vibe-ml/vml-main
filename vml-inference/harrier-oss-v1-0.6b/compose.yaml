@@ -1,0 +1,63 @@
+name: harrier
+services:
+  embeddings:
+    build: .
+    image: vml-harrier:vllm-0.30.0-cpu-native
+    restart: unless-stopped
+    # vLLM CPU workers exchange tensors through shared memory.
+    ipc: host
+    ports:
+      - "127.0.0.1:30004:8000"
+    environment:
+      # Keep Torch CPU operations bounded and avoid busy-wait contention.
+      OMP_NUM_THREADS: "4"
+      OMP_WAIT_POLICY: PASSIVE
+      # Use the CPU runner with native kernel fallbacks (see Dockerfile).
+      VLLM_USE_V2_MODEL_RUNNER: "0"
+    volumes:
+      - /opt/hf_cache:/root/.cache/huggingface
+    command:
+      # Load the embedding model, pinned to the cached upstream revision.
+      - microsoft/harrier-oss-v1-0.6b
+      - --revision
+      - f9b9dc8d367d443f2479d27aa5d8d2850c0774ee
+      # Select pooling instead of text generation.
+      - --runner
+      - pooling
+      # Adapt Qwen3Model to the embedding interface.
+      - --convert
+      - embed
+      # Ice Lake has fast FP32 but no native BF16 arithmetic.
+      - --dtype
+      - float32
+      # Bound per-input context and CPU attention memory.
+      - --max-model-len
+      - "4096"
+      # Limit concurrent sequences on this shared CPU host.
+      - --max-num-seqs
+      - "4"
+      # Bound the total tokens processed in one scheduler step.
+      - --max-num-batched-tokens
+      - "4096"
+      # On CPU, this controls the host RAM budget despite the option name.
+      - --gpu-memory-utilization
+      - "0.5"
+      # Avoid graph compilation for this CPU deployment.
+      - --enforce-eager
+      # Listen inside the container; host publication stays loopback-only.
+      - --host
+      - 0.0.0.0
+      # OpenAI-compatible API port.
+      - --port
+      - "8000"
+    healthcheck:
+      test: [CMD, python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 180s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"

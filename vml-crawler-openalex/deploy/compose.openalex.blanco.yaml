@@ -1,0 +1,53 @@
+# Applied by deploy-openalex.sh; credentials stay on the deployment host.
+services:
+  code_openalex:
+    restart: unless-stopped
+    image: ${OPENALEX_IMAGE:?OpenAlex image is required}
+    build:
+      context: ./openalex
+    environment:
+      # Schedule evaluation reconstructs the Dagster instance in this process.
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD:?Database password is required}
+      DAGSTER_CURRENT_IMAGE: ${OPENALEX_IMAGE:?OpenAlex image is required}
+      OPENALEX_INGESTION_CADENCE: "15 0 * * *"
+      OPENALEX_TAXONOMY_CADENCE: "0 0 * * *"
+      OPENALEX_BATCH_CADENCE: "*/5 * * * *"
+      DAGSTER_CONTAINER_CONTEXT: >-
+        {"docker": {
+          "env_vars": ["OPENALEX_DATABASE_URL", "OPENALEX_API_KEY",
+            "OPENALEX_STORAGE_ROOT=/data/openalex", "OPENALEX_API_REQUEST_LIMIT=${OPENALEX_RUN_REQUEST_LIMIT:-100}",
+            "OPENALEX_PUBLICATION_FROM=2026-06-01"],
+          "networks": ["local-db_default"],
+          "container_kwargs": {
+            "volumes": ["dagster_dagster_storage:/opt/dagster/storage", "/data/vml/dev:/data"],
+            "mem_limit": "2g", "nano_cpus": 2000000000
+          }
+        }}
+    volumes:
+      - /data/vml/dev:/data
+    networks:
+      - default
+      - openalex_database
+    healthcheck:
+      test: [CMD, dagster, api, grpc-health-check, -p, "4000"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  daemon:
+    env_file:
+      - ./secrets/openalex.env
+    depends_on:
+      code_openalex:
+        condition: service_healthy
+
+networks:
+  openalex_database:
+    external: true
+    name: local-db_default

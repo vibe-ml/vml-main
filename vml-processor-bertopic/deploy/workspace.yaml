@@ -1,0 +1,7 @@
+# Workspace registration snippet for the processor code location on vml.pub.
+# Merge with the shared Dagster workspace; do not replace the crawler's entry.
+load_from:
+  - grpc_server:
+      host: code_bertopic
+      port: 4000
+      location_name: bertopic

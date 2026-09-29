@@ -1,0 +1,83 @@
+# Processor code-location overlay for vml.pub. Deploy under
+# /opt/dagster/projects/vml-processor-bertopic/compose.yaml and merge from
+# /opt/dagster via COMPOSE_FILE. Credentials stay in host secrets files.
+services:
+  code_bertopic:
+    restart: unless-stopped
+    image: ${BERTOPIC_IMAGE:?Processor image is required}
+    build:
+      context: ./projects/vml-processor-bertopic
+    environment:
+      DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD:?Database password is required}
+      DAGSTER_CURRENT_IMAGE: ${BERTOPIC_IMAGE:?Processor image is required}
+      DAGSTER_CONTAINER_CONTEXT: >-
+        {"docker": {
+          "env_vars": [
+            "PWF_DATABASE_URL", "PWF_UPSTREAM_SCHEMA", "PWF_ALEMBIC_NAME",
+            "PWF_QDRANT_URL", "PWF_QDRANT_COLLECTION",
+            "PWF_EMBEDDER_API_URLS", "PWF_EMBEDDING_MODEL",
+            "PWF_EMBEDDING_MODEL_REVISION", "PWF_EMBEDDING_VECTOR_SIZE",
+            "PWF_EMBEDDING_CONTEXT_WINDOW",
+            "PWF_EMBEDDING_MAX_CONCURRENCY_PER_ENDPOINT",
+            "PWF_EMBEDDING_MAX_CONCURRENCY_OVERALL",
+            "PWF_EMBEDDING_ENDPOINT_FAILURE_LIMIT",
+            "PWF_EMBEDDING_ENDPOINT_MAX_RETRIES",
+            "PWF_EMBEDDING_RETRY_BACKOFF_SECONDS",
+            "PWF_TOPIC_RUN_MAX_CONCURRENT",
+            "PWF_MIN_CLUSTER_SIZE", "PWF_UMAP_N_NEIGHBORS",
+            "PWF_LABELING_API_URL", "PWF_LABELING_API_KEY",
+            "PWF_LABELING_MODEL", "PWF_LABELING_MODEL_REVISION",
+            "PWF_LABELING_TOKENIZER_PATH",
+            "PWF_LABELING_MAX_CONCURRENCY",
+            "PWF_LABELING_MAX_RETRIES",
+            "PWF_LABELING_RETRY_BACKOFF_SECONDS",
+            "PWF_CORPUS__SCOPE_IDS", "PWF_CORPUS__WORK_TYPES",
+            "PWF_CORPUS__PUBLISHED_FROM", "PWF_CORPUS__PUBLISHED_TO",
+            "PWF_CORPUS__EXCLUDED_DOMAIN_IDS"
+          ],
+          "networks": ["pg_default"],
+          "container_kwargs": {
+            "volumes": [
+              "dagster_dagster_storage:/opt/dagster/storage",
+              "/data/demo:/data"
+            ],
+            "extra_hosts": ${BERTOPIC_EXTRA_HOSTS:?Run container extra_hosts is required}
+          }
+        }}
+    env_file:
+      - ./configs/vml-processor-bertopic.env
+      - ./secrets/vml-processor-bertopic.env
+    volumes:
+      - /data/demo:/data
+    networks:
+      - default
+      - bertopic_database
+    healthcheck:
+      test: [CMD, dagster, api, grpc-health-check, -p, "4000"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  daemon:
+    env_file:
+      - ./configs/vml-processor-bertopic.env
+      - ./secrets/vml-processor-bertopic.env
+    depends_on:
+      code_bertopic:
+        condition: service_healthy
+
+  webserver:
+    env_file:
+      - ./configs/vml-processor-bertopic.env
+      - ./secrets/vml-processor-bertopic.env
+
+networks:
+  bertopic_database:
+    external: true
+    name: pg_default

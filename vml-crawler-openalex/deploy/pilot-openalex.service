@@ -1,0 +1,9 @@
+[Unit]
+Description=Capture bounded OpenAlex pilot evidence and enforce its deadline
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/dagster/pilot-observe-openalex.sh
+TimeoutStartSec=300

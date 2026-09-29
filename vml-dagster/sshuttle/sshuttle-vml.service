@@ -1,0 +1,21 @@
+[Unit]
+Description=sshuttle VPN to VML private loopback
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=rin
+Environment="HOME=/home/rin"
+Environment="USERNAME=ansible"
+# Use the public endpoint to establish the tunnel independently of its private IP.
+Environment="HOSTNAME=vml.pub"
+Environment="HOST_INT_IP=10.255.0.1"
+# Forward only the remote private address; preserve the template's Docker exclusion.
+ExecStart=/usr/bin/sshuttle --method=nat -l 127.0.0.1:0 -x 172.17.0.0/16 -e "/usr/bin/ssh -o BatchMode=yes -o ConnectTimeout=10 -o ServerAliveInterval=30 -o ServerAliveCountMax=3" -r ${USERNAME}@${HOSTNAME} ${HOST_INT_IP}/32
+Restart=on-failure
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

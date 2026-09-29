@@ -1,0 +1,9 @@
+*
+!Dockerfile
+!requirements.txt
+!dagster.yaml
+!workspace.yaml
+!code/
+!code/**
+!Dockerfile.pipeline
+!requirements-pipeline.txt

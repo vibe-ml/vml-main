@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Horizon</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="bar">
+      <p class="mark">Horizon</p>
+      <nav aria-label="Sections">
+        <button type="button" id="nav-overview" aria-current="page">Project</button>
+        <button type="button" id="nav-research">Research</button>
+      </nav>
+    </header>
+    <main id="main">
+      <section id="overview">
+        <h1>Weak signal recognition</h1>
+        <p class="lead">
+          Horizon is the analyst workstation. It researches an open query on the
+          public web and shows how the rest of the system is divided.
+        </p>
+        <h2>Repositories</h2>
+        <dl id="catalog"></dl>
+        <h2>Research agent</h2>
+        <p id="readiness">Checking the model and web search.</p>
+      </section>
+      <section id="research" hidden>
+        <h1>Research an open query</h1>
+        <form id="query-form">
+          <label for="query">Technology domain</label>
+          <textarea
+            id="query"
+            name="query"
+            rows="4"
+            required
+            minlength="3"
+            placeholder="For example: microfluidic diagnostics outside clinical labs"
+          ></textarea>
+          <label for="exclusions">Leave out</label>
+          <input id="exclusions" name="exclusions" type="text" placeholder="Optional" />
+          <div class="actions">
+            <button type="submit" id="start">Start research</button>
+            <label class="runs" for="run-list">
+              Earlier runs
+              <select id="run-list">
+                <option value="">None yet</option>
+              </select>
+            </label>
+          </div>
+          <p id="form-error" class="error" role="alert" hidden></p>
+        </form>
+        <div class="work">
+          <section class="activity" aria-labelledby="activity-title">
+            <h2 id="activity-title">Activity</h2>
+            <ol id="activity" aria-live="polite"></ol>
+          </section>
+          <section class="report" aria-labelledby="report-title">
+            <h2 id="report-title">Report</h2>
+            <div id="report" class="report-body">
+              <p class="empty">
+                The report lists technology candidates, the sources behind each
+                claim, and what this search did not cover. A candidate is not a
+                confirmed weak signal until the evidence says so.
+              </p>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

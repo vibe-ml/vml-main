@@ -1,0 +1,269 @@
+{
+  "source_repository": "/home/rin/vibeml/vml-crawler-openalex",
+  "source_head": "865912b1decb12fcf17ebf2a21997b79acf2985e",
+  "copied_at_utc": "2026-09-28T11:51:33.450604+00:00",
+  "source_has_uncommitted_changes": true,
+  "copy_basis": "Working-tree documentation, byte-for-byte; symlink targets copied as regular files.",
+  "files": [
+    {
+      "path": "docs/agents/tasks/embed-01-task.md",
+      "sha256": "1dd93cca89f2b36749f6a8c703ece00e154fe44b90c98c68ac946968e85c018d"
+    },
+    {
+      "path": "docs/agents/research/bertopic-openalex.md",
+      "sha256": "c28bf7b8e0d15ee9cb6afe967f18f236b7c56e8275f12cdc21a147179f4b7cbb"
+    },
+    {
+      "path": "docs/agents/research/technologies/abstract-parsing.md",
+      "sha256": "12e7594a29e0c51f161a73497427f9c9d8bf1fbf158cc7dbfe8f59a6abc6310e"
+    },
+    {
+      "path": "docs/agents/tasks/technologies-01-task.md",
+      "sha256": "c6e41c9b3dfab0ffdd668b98c97adbda0f33242f86f12d52e634c25696dc9cd8"
+    },
+    {
+      "path": "docs/architecture/db.md",
+      "sha256": "2481d6bc9ffed2ba6f6b9787179532e43843dc98b67712513cfa75ee4c2c95f4"
+    },
+    {
+      "path": "docs/ingestion-abstract.md",
+      "sha256": "7cbd160029354888003389b06225d563710bb705da7ce13c47e14b713e9cefce"
+    },
+    {
+      "path": "docs/raw-data-get-work.md",
+      "sha256": "f1ce5b737247fe4ddb740bfe7d802d98e022dca59aab9d898393412ecd892b75"
+    },
+    {
+      "path": "docs/agents/research/technologies/work-w4407679583.codex.md",
+      "sha256": "ec4eca3713133d26f969c8b973eb9a9a039a58edd5f024fa87d5169095f40eb8"
+    },
+    {
+      "path": "docs/openalex.md",
+      "sha256": "ebc0865910ebfa77fe32ffc12b1c59a2b68e83eb24baa61bfdd38c12c2e52f03"
+    },
+    {
+      "path": "docs/deploy/openalex-deployment-vml.md",
+      "sha256": "9ddcc6cc6a2c66277984e0f4d038ffcfb8d91e92fb804d30751e75d741361ac2"
+    },
+    {
+      "path": "README.md",
+      "sha256": "979d5c9d26e915f06e7df35b373da138bc833bcb594864959b5a41c0fb1a00f0"
+    },
+    {
+      "path": "docs/ingestion.md",
+      "sha256": "eb161b2d207b401e1f8450b50f832139726596bd96e1398120061095d6a87b9d"
+    },
+    {
+      "path": "docs/agents/tasks/fetch-agreement.md",
+      "sha256": "0375f84e3cb8b2ef52ba5215d346826083229314d4356ab1ccd1903683925950"
+    },
+    {
+      "path": "docs/agents/tasks/ingestion/spec.md",
+      "sha256": "09a6312c781e1f6fa74b0700f6b3e86bfceccc404e5082177ebff1758884b5eb"
+    },
+    {
+      "path": "docs/agents/tasks/ingestion/snapshot-sample.md",
+      "sha256": "ce6f0e5c4bf43b69c7e95f7517cc7aa14d0ba5c18bf919b3fbc2ef31553a5d87"
+    },
+    {
+      "path": "docs/agents/tasks/ingestion/api-source-mapping.md",
+      "sha256": "21f2ab662acadd47dcb37303394670a04964e1f0763ff7fdc52f3718adcacd4c"
+    },
+    {
+      "path": "docs/agents/tasks/ingestion/issues/06-reconcile-work-history.md",
+      "sha256": "c76b297ed314896b798ad329a93059fc1109817bfbe58e6518e33fefa51b9c9e"
+    },
+    {
+      "path": "docs/agents/tasks/ingestion/issues/08-rebuild-derived-outputs.md",
+      "sha256": "231f0ee72566fa1a0ded99f774c2d9346ae7cfe5e8d342b53a8b859308bd4e8e"
+    },
+    {
+      "path": "docs/agents/research/data-openalex-elt.md",
+      "sha256": "97b24c3b139c1a54c044983d4a122c74b8f825cbd74a17c05ae3a4ea58d1b30f"
+    },
+    {
+      "path": "CONTEXT.md",
+      "sha256": "e1431562699593232567ebf872fd9feb54789a812f04130512bc9b266fe68f8b"
+    },
+    {
+      "path": "docs/agents/research/data-openalex.md",
+      "sha256": "c0abf9fcbbec700b570831626a7670df04147a201c385fa5ffd480a7ca24b97d"
+    },
+    {
+      "path": "docs/agents/research/metrics.md",
+      "sha256": "1249e45d33b1733f4d9b5b4a0ba72d66b704a450a499917a726a4364992b0b13"
+    },
+    {
+      "path": "docs/agents/research/trends-01-research.md",
+      "sha256": "055aa25711767c694b7ec75f52633e705747dec57104f547a0038fcb00f667d7",
+      "resolved_source": "/home/rin/project/vibeml/vml-trends/docs/agents/research/trends/trends-01-research.md"
+    }
+  ],
+  "relative_links_outside_snapshot_or_missing_upstream": [
+    {
+      "document": "docs/agents/research/bertopic-openalex.md",
+      "target": "../../../src/models/raw.py",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/agents/research/bertopic-openalex.md",
+      "target": "../../../pyproject.toml",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/agents/research/bertopic-openalex.md",
+      "target": "../../../src/ingestion/snapshot.py",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/agents/research/bertopic-openalex.md",
+      "target": "../../../src/ingestion/scope.py",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/agents/research/technologies/abstract-parsing.md",
+      "target": "../../../../src/models/raw.py",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "README.md",
+      "target": "src/common/settings.py",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "README.md",
+      "target": "src/models/",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/ingestion.md",
+      "target": "../src/ingestion/defs.py",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/ingestion.md",
+      "target": "../src/common/settings.py",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/ingestion.md",
+      "target": "../config/dagster.yaml",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/ingestion.md",
+      "target": "agents/tasks/ingestion/issues/07-allocate-refresh-budget.md",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/ingestion.md",
+      "target": "agents/tasks/ingestion/issues/11-validate-live-capacity.md",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/ingestion.md",
+      "target": "agents/research/deploy-03-validation.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/ingestion.md",
+      "target": "agents/tasks/fetch-snapshot/investigate-01-report.md",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/agents/research/data-openalex-elt.md",
+      "target": "../tasks/fetch-03-task.md",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/agents/research/data-openalex-elt.md",
+      "target": "../tasks/fetch-02-task.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "CONTEXT.md",
+      "target": "docs/problem/gpb-problem-detailed.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "CONTEXT.md",
+      "target": "docs/problem/q&a/q&a-2026-09-17-summary.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "CONTEXT.md",
+      "target": "docs/agents/research/trends/trends-01-research.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/metrics.md",
+      "target": "../tasks/metrics-01-task.md",
+      "exists_in_source_checkout": true
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/gpb-problem-detailed.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/dataset-2026-09-weak-signals-100.xlsx",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/q&a/q&a-2026-09-17-summary.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/gpb-problem-detailed.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/q&a/q&a-2026-09-17-summary.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/dataset-2026-09-weak-signals-100.xlsx",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/q&a/q&a-2026-09-17-summary.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/gpb-problem-detailed.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/q&a/q&a-2026-09-17-summary.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/q&a/q&a-2026-09-17-summary.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/q&a/q&a-2026-09-17-summary.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/gpb-problem-detailed.md",
+      "exists_in_source_checkout": false
+    },
+    {
+      "document": "docs/agents/research/trends-01-research.md",
+      "target": "../../../problem/q&a/q&a-2026-09-17-summary.md",
+      "exists_in_source_checkout": false
+    }
+  ]
+}

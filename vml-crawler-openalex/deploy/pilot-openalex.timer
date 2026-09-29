@@ -1,0 +1,11 @@
+[Unit]
+Description=Collect OpenAlex pilot evidence every fifteen minutes
+
+[Timer]
+OnCalendar=*-*-* *:00/15:00 UTC
+Persistent=true
+AccuracySec=1s
+Unit=pilot-openalex.service
+
+[Install]
+WantedBy=timers.target
